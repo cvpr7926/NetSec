@@ -28,10 +28,17 @@ function is_username_taken(object $pdo,string $username): bool
    if(get_username($pdo,$username))
    {
     return true;
-   } else 
+   } 
+   return false;
+}
+
+function is_email_taken(object $pdo,string $email): bool
+{
+   if(get_email($pdo,$email))
    {
-    return false;
-   }
+    return true;
+   } 
+   return false;
 }
 
 function create_user(object $pdo,string $usrname,string $pwd,string $email)

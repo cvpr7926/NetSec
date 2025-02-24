@@ -9,7 +9,18 @@ function get_username(object $pdo,string $username)
     $stmt->execute();
 
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result;
+    return $result; //send only username  return $result ? $result['username'] : null;
+}
+
+function get_email(object $pdo,string $email)
+{
+    $query = "SELECT email FROM users WHERE email= :email;";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(":email",$email);
+    $stmt->execute();
+
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result; //send only username  return $result ? $result['username'] : null;
 }
 
 function set_user(object $pdo,string $username,string $pwd,string $email){
