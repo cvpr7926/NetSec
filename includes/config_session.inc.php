@@ -6,7 +6,7 @@ if(isset($_SESSION["user_id"]))
 {
     if(!isset($_SESSION["last_regeneration"]))
     {
-        regnerate_session_id_loggedin();
+        regenerate_session_id_loggedin();
     } else 
     {
         $interval = 60*30;
@@ -19,7 +19,7 @@ if(isset($_SESSION["user_id"]))
 } else {
         if(!isset($_SESSION["last_regeneration"]))
         {
-            regnerate_session_id();
+            regenerate_session_id();
         } else 
         {
             $interval = 60*30;

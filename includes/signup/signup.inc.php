@@ -33,7 +33,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
         
         if($errors)
         {      
-               require_once 'config_session.inc.php'; //to start session
+               require_once '../config_session.inc.php'; //to start session
                $_SESSION["errors_signup"] = $errors;
                //echo "came here";
                

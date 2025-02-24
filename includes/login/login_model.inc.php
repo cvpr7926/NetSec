@@ -3,7 +3,7 @@
 
 function get_user(object $pdo,string $username)
 {
-    $query = "SELECT username FROM users WHERE username= :username;";
+    $query = "SELECT id,username,password_hash FROM users WHERE username= :username;";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(":username",$username);
     $stmt->execute();

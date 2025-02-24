@@ -30,9 +30,11 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
            $errors["wrong_password"] = "The password is wrong";
         }
         
+        require_once '../config_session.inc.php'; //to start session
+
         if($errors)
         {      
-               require_once 'config_session.inc.php'; //to start session
+              
                $_SESSION["errors_login"] = $errors;
 
 
@@ -46,8 +48,9 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
            $_SESSION["user_id"] = $result["id"];
            $_SESSION["username"] = htmlspecialchars($result["username"]); //XSS attack
            $_SESSION["last_regeneration"] = time();
-
+           error_log("kya hua");
            header("Location: ../home/home.inc.php");
+           die();
 
         } catch(PDOException $e)
         {

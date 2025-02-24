@@ -16,7 +16,7 @@ function is_input_empty(string $username,string $pwd)
 
 
 
-function is_username_valid(bool|string $result): bool
+function is_username_valid($result): bool
 {
    if(!$result)
    {
