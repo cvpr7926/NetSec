@@ -6,5 +6,5 @@ if (!isset($_SESSION['user_id'])) {
    exit();
 }
 
-echo "Welcome, " . htmlspecialchars($_SESSION['username']) . "! <a href='logout.inc.php'>Logout</a>";
+echo "Welcome, " . htmlspecialchars($_SESSION['username']) . "! <a href='logout.inc.php'>Logout</a>" . "! <a href='send/sendMoney.inc.php'>sendMoney</a>" ;
 ?>
