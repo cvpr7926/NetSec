@@ -1,5 +1,11 @@
 <?php
 require_once "includes/config_session.inc.php";
+
+if (isset($_SESSION["user_id"])) {
+    header("Location: includes/profile/profile.inc.php"); 
+    exit();
+}
+
 require_once "includes/signup/signup_view.inc.php";
 require_once "includes/login/login_view.inc.php";
 ?>

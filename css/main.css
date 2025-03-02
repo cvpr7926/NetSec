@@ -91,3 +91,64 @@ button:hover {
     }
 }
 
+/* 📌 Profile Card */
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.profile-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+}
+
+.profile-card h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.profile-card p {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+/* 📸 Profile Image */
+.profile-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ddd;
+    margin-bottom: 10px;
+}
+
+/* 📌 Logout Button */
+.logout-btn {
+    display: inline-block;
+    margin-top: 15px;
+    color: #d9534f;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    text-decoration: underline;
+}
+
+/* ✅ Success and Error Messages */
+.success {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.error {
+    color: #dc3545;
+    font-weight: bold;
+}

@@ -49,7 +49,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
            $_SESSION["username"] = htmlspecialchars($result["username"]); //XSS attack
            $_SESSION["last_regeneration"] = time();
            error_log("kya hua");
-           header("Location: ../home/home.inc.php");
+           header("Location: ../profile/profile.inc.php");
            die();
 
         } catch(PDOException $e)
