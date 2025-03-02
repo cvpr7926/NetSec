@@ -1,54 +1,35 @@
 <?php
 
 declare(strict_types=1);
+require_once '../config_session.inc.php';
+require_once '../db.inc.php';
+require_once 'profile_model.inc.php';
 
-function display_profile(string $username, string $name, string $email, string $bio, ?string $profile_image)
-{
-    echo "<div class='profile-card'>";
-    echo "<div class='profile-header'>";
-    echo $profile_image ? "<img class='profile-pic' src='" . htmlspecialchars($profile_image) . "' alt='Profile Image'>" : "<div class='profile-pic default-pic'>?</div>";
-    echo "<h2>" . htmlspecialchars($name ?: $username) . "</h2>";
-    echo "<p class='email'>" . htmlspecialchars($email) . "</p>";
-    echo "</div>";
-    
-    echo "<div class='profile-content'>";
-    echo "<p class='bio'>" . nl2br(htmlspecialchars($bio ?: "No bio available")) . "</p>";
-    echo "</div>";
-    echo "</div>";
-}
+$user_id = $_SESSION["user_id"];
+$user = get_user_profile($pdo, $user_id);
+
+$username = $user["username"] ?? "";
+$name = $user["name"] ?? "";
+$email = $user["email"] ?? "";
+$bio = $user["bio"] ?? "";
+$profile_image = $user["profile_image"] ?? null;
+
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <link rel="stylesheet" href="../../css/main.css">
-</head>
-<body>
-    <div class="container">
-        <?php display_profile($username, $name, $email, $bio, $profile_image); ?>
+<div class="profile-container">
+    <div class="profile-card">
+        <?php if ($profile_image): ?>
+            <img class="profile-pic" src="<?= htmlspecialchars($profile_image); ?>" alt="Profile Image">
+        <?php else: ?>
+            <div class="profile-pic default-pic">?</div>
+        <?php endif; ?>
 
-        <div class="form-container">
-            <h3>Update Profile</h3>
-            <form action="profile_update.inc.php" method="post" enctype="multipart/form-data">
-                <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Full Name">
-                <textarea name="bio" placeholder="Enter your biography"><?= htmlspecialchars($bio) ?></textarea>
-                <input type="file" name="profile_image" accept="image/*">
-                <button type="submit">Update Profile</button>
-            </form>
+        <h2><?= htmlspecialchars($name ?: $username); ?></h2>
+        <p><?= htmlspecialchars($email); ?></p>
 
-            <h3>Change Password</h3>
-            <form action="profile_update.inc.php" method="post">
-                <input type="password" name="current_password" placeholder="Current Password" required>
-                <input type="password" name="new_password" placeholder="New Password" required>
-                <input type="password" name="confirm_password" placeholder="Confirm New Password" required>
-                <button type="submit">Change Password</button>
-            </form>
-
-            <p><a href="../home/logout.inc.php">Logout</a></p>
-        </div>
+        <p><strong>Bio:</strong> <?= nl2br(htmlspecialchars($bio ?: "No bio available")); ?></p>
     </div>
-</body>
-</html>
+</div>
+
+
+
