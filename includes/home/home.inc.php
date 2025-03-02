@@ -7,4 +7,5 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 echo "Welcome, " . htmlspecialchars($_SESSION['username']) . "! <a href='logout.inc.php'>Logout</a>" . "! <a href='send/sendMoney.inc.php'>sendMoney</a>" ;
+echo "! <a href='history/history.inc.php'>View History</a>"
 ?>

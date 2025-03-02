@@ -2,9 +2,14 @@
 
 declare(strict_types=1);
 
-require_once 'sendMoney_view.inc.php';
 require_once '../../config_session.inc.php';
 
+if(!isset($_SESSION["user_id"])) {
+    header("Location: ../../../index.php");
+    die();
+} 
+
+require_once 'sendMoney_view.inc.php';
 ?>
 
 <!DOCTYPE html>
