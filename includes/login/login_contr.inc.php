@@ -16,7 +16,7 @@ function is_input_empty(string $username,string $pwd)
 
 
 
-function is_username_valid($result): bool
+function is_username_invalid($result): bool
 {
    if(!$result)
    {
@@ -27,12 +27,10 @@ function is_username_valid($result): bool
 }
 function is_pwd_correct(string $pwd,string $hashed_pwd): bool
 {
-    $options = [
-        'cost' => 12,
-    ];
-    $hashedPwd = password_hash($pwd,PASSWORD_BCRYPT,$options);
 
-    if($hashedPwd==$hashed_pwd) return true;
+    if (password_verify($pwd, $hashed_pwd)) {
+        return true;
+    }
     return false;
 }
 

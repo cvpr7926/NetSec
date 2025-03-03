@@ -19,14 +19,17 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
         }
 
         $result = get_user($pdo,$username);
- 
 
-        if(is_username_valid($result))
+        error_log("Mayavi");
+        error_log(print_r($result, true));
+
+
+        if(is_username_invalid($result))
         { 
            $errors["username_invalid"] = "This username doesn't exist";
           
         }
-        if(is_pwd_correct($pwd,$result["passwordhash"]))
+        if(!is_username_invalid($result) && !is_pwd_correct($pwd,$result["passwordhash"]))
         { 
            $errors["wrong_password"] = "The password is wrong";
         }
@@ -43,7 +46,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
                exit();
         }
            $newSessionId = session_create_id();
-           $sessionId = $newSessionId ."_". $result["ID"]; //make this more secure, unguessabel
+           $sessionId = $newSessionId ."_". $result["id"]; //make this more secure, unguessabel
            session_id($sessionId);
 
            $_SESSION["user_id"] = $result["id"];
