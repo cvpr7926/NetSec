@@ -2,7 +2,7 @@
 
 function get_user_profile(object $pdo, int $user_id)
 {
-    $query = "SELECT UserID, Username, Email, Biography, ProfileImagePath FROM Profile WHERE UserID = :user_id;";
+    $query = "SELECT ID, Username, Email, Biography, ProfileImagePath FROM Profile WHERE ID = :user_id;";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
     $stmt->execute();
@@ -28,7 +28,7 @@ function update_user_profile(object $pdo, int $user_id, ?string $name, ?string $
         return false; 
     }
 
-    $query = rtrim($query, ", ") . " WHERE UserID = :user_id";
+    $query = rtrim($query, ", ") . " WHERE ID = :user_id";
     $params[':user_id'] = $user_id;
 
     $stmt = $pdo->prepare($query);
@@ -39,7 +39,7 @@ function update_user_password(object $pdo, int $user_id, string $new_password)
 {
     $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
     
-    $query = "UPDATE Profile SET PasswordHash = :password WHERE UserID = :user_id;";
+    $query = "UPDATE Profile SET PasswordHash = :password WHERE ID = :user_id;";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(":password", $hashed_password, PDO::PARAM_STR);
     $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
@@ -48,7 +48,7 @@ function update_user_password(object $pdo, int $user_id, string $new_password)
 
 function update_profile_image(object $pdo, int $user_id, string $file_path)
 {
-    $query = "UPDATE Profile SET ProfileImagePath = :file_path WHERE UserID = :user_id;";
+    $query = "UPDATE Profile SET ProfileImagePath = :file_path WHERE ID = :user_id;";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(":file_path", $file_path, PDO::PARAM_STR);
     $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);

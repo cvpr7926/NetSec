@@ -3,7 +3,7 @@
 
 function get_username(object $pdo,string $username)
 {
-    $query = "SELECT username FROM users WHERE username= :username;";
+    $query = "SELECT Username FROM Profile WHERE Username= :username;";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(":username",$username);
     $stmt->execute();
@@ -14,7 +14,7 @@ function get_username(object $pdo,string $username)
 
 function get_email(object $pdo,string $email)
 {
-    $query = "SELECT email FROM users WHERE email= :email;";
+    $query = "SELECT email FROM Profile WHERE Email= :email;";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(":email",$email);
     $stmt->execute();
@@ -25,7 +25,7 @@ function get_email(object $pdo,string $email)
 
 function set_user(object $pdo,string $username,string $pwd,string $email){
 
-    $query = "INSERT INTO users (username,password_hash,email) VALUES (:username,:password,:email);";
+    $query = "INSERT INTO Profile (Username,PasswordHash,Email) VALUES (:username,:password,:email);";
     $stmt = $pdo->prepare($query);
     
     $options = [
