@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-require_once '../../db.inc.php';
+require_once '../db.inc.php';
 require_once 'sendMoney_model.inc.php';
-require_once '../../config_session.inc.php';
+require_once '../config_session.inc.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transfer"])) 
 {
     if (!isset($_SESSION["user_id"])) 
     {
         $_SESSION["errors_transfer"] = "You must be logged in.";
-        header("Location: ../../../index.inc.php");
+        header("Location: ../../index.inc.php");
         exit();
     }    
 
@@ -40,6 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transfer"]))
 }
 else 
 {
-    header("Location: ../../../index.php");
+    header("Location: ../../index.php");
     die();
 }

@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 
-require_once '../../config_session.inc.php';
+require_once '../config_session.inc.php';
 require_once 'history_model.inc.php';
 
 // ✅ Ensure user is logged in
 if (!isset($_SESSION["user_id"])) {
-    header("Location: ../../../index.php");
+    header("Location: ../../index.php");
     exit();
 }
 

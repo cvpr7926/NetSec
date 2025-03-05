@@ -1,9 +1,12 @@
 <?php
+
 $current_page = basename($_SERVER['PHP_SELF']);
 if ($current_page !== "index.php"): ?>
     <nav class="navbar">
         <div class="navbar-container">
             <ul class="nav-links">
+                <li><a href="../history/history.inc.php">History</a></li>
+                <li><a href="../send/sendMoney.inc.php">Transfer</a></li>
                 <li><a href="../profile/profile.inc.php">Profile</a></li>
                 <?php if ($user_id): ?>
                     <li><a href="../home/logout.inc.php" class="logout">Logout</a></li>

@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-require_once '../../db.inc.php';
+require_once '../db.inc.php';
 
 // ✅ Get transaction history for a user
 function get_transaction_history(PDO $pdo, int $userId): array 

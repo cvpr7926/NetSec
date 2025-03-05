@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once '../../db.inc.php';
+require_once '../db.inc.php';
 
 // Get user ID by username
 function get_user_id_by_username(PDO $pdo, string $username)

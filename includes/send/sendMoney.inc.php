@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-require_once '../../config_session.inc.php';
+require_once '../config_session.inc.php';
+require_once '../Navbar/navbar.php';
 
-if(!isset($_SESSION["user_id"])) {
-    header("Location: ../../../index.php");
+if (!isset($_SESSION["user_id"])) {
+    header("Location: ../../index.php");
     die();
 } 
 
@@ -18,6 +19,7 @@ require_once 'sendMoney_view.inc.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Money Transfer</title>
+    <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
 
