@@ -30,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transfer"]))
     
     if (transfer_money($pdo, $senderId, $receiverUsername, $amount, $comment)) {
         $_SESSION["transfer_success"] = "Transfer successful!";
-        
     } else {
         $_SESSION["errors_transfer"] = "Transfer failed: " . ($_SESSION["errors_transfer"] ?? "Unknown error.");
     }

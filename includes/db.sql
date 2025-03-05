@@ -67,3 +67,5 @@ FOR EACH ROW EXECUTE FUNCTION update_last_modified();
 CREATE TRIGGER create_balance_on_profile_insert
 AFTER INSERT ON Profile
 FOR EACH ROW EXECUTE FUNCTION insert_initial_balance();
+
+ALTER TABLE Balance ADD CONSTRAINT unique_balance_user UNIQUE (ID);

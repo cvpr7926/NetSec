@@ -1,31 +1,34 @@
 <?php
 
 declare(strict_types=1);
-
 require_once '../db.inc.php';
 
 // Get user ID by username
-function get_user_id_by_username(PDO $pdo, string $username)
+function get_user_id_by_username(PDO $pdo, string $Username): ?int
 {
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username");
-    $stmt->execute([':username' => $username]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT ID FROM Profile WHERE Username = :Username");
+    $stmt->execute([':Username' => $Username]);
 
-    return $result ? (int)$result["id"] : null;
+    return ($id = $stmt->fetchColumn()) ? (int) $id : null;
 }
 
-// Get user's balance
-function get_user_balance(PDO $pdo, int $userId)
+// Search users by username (case-insensitive search)
+function search_users(PDO $pdo, string $searchTerm): array
 {
-    $stmt = $pdo->prepare("SELECT balance FROM users WHERE id = :id");
-    $stmt->execute([':id' => $userId]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (strlen($searchTerm) < 2) {
+        return []; // Return empty array instead of top 5 users
+    }
+
+    $stmt = $pdo->prepare("SELECT Username FROM Profile WHERE Username ILIKE :searchTerm LIMIT 5");
+    $stmt->execute([':searchTerm' => $searchTerm . '%']);
     
-    return $result ? (float)$result["balance"] : null;
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
-// Transfer money by username
-function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float $amount, ?string $comment)
+
+// Transfer money between users
+function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float $amount, ?string $comment): bool
 {
     try {
         $pdo->beginTransaction();
@@ -36,25 +39,25 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
             throw new Exception("Recipient not found.");
         }
 
-        // Check sender's balance
-        $stmt = $pdo->prepare("SELECT balance FROM users WHERE id = :senderId");
+        // Get sender's balance
+        $stmt = $pdo->prepare("SELECT Balance FROM Balance WHERE ID = :senderId");
         $stmt->execute([':senderId' => $senderId]);
         $sender = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$sender || $sender["balance"] < $amount) {
-            throw new Exception("Insufficient funds.");
+            throw new Exception("Insufficient funds. " . $sender ); 
         }
 
         // Deduct from sender
-        $stmt = $pdo->prepare("UPDATE users SET balance = balance - :amount WHERE id = :senderId");
+        $stmt = $pdo->prepare("UPDATE Balance SET Balance = Balance - :amount WHERE ID = :senderId");
         $stmt->execute([':amount' => $amount, ':senderId' => $senderId]);
 
         // Add to receiver
-        $stmt = $pdo->prepare("UPDATE users SET balance = balance + :amount WHERE id = :receiverId");
+        $stmt = $pdo->prepare("UPDATE Balance SET Balance = Balance + :amount WHERE ID = :receiverId");
         $stmt->execute([':amount' => $amount, ':receiverId' => $receiverId]);
 
         // Insert transaction record
-        $stmt = $pdo->prepare("INSERT INTO transactions (sender_id, receiver_id, amount, comment) 
+        $stmt = $pdo->prepare("INSERT INTO Transactions (SenderID, ReceiverID, Amount, Comment) 
                               VALUES (:senderId, :receiverId, :amount, :comment)");
         $stmt->execute([
             ':senderId' => $senderId,
