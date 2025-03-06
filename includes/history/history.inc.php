@@ -30,7 +30,7 @@ $transactions = get_user_transactions();
 <body>
 
     <!-- <h1>Transfer Money</h1> -->
-    <?php  display_transaction_history($transactions, $_SESSION["user_id"]) ?> ;
+    <?php  display_transaction_history($transactions, $_SESSION["user_id"]) ?> 
 
 </body>
 </html>
