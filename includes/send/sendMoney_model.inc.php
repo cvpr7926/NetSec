@@ -20,8 +20,10 @@ function search_users(PDO $pdo, string $searchTerm): array
         return []; // Return empty array instead of top 5 users
     }
 
-    $stmt = $pdo->prepare("SELECT Username FROM Profile WHERE Username ILIKE :searchTerm LIMIT 5");
-    $stmt->execute([':searchTerm' => $searchTerm . '%']);
+    $stmt = $pdo->prepare("SELECT Username FROM Profile WHERE LOWER(Username) LIKE LOWER(:searchTerm) LIMIT 5");
+    $searchTerm = $searchTerm . '%'; // Append '%' before binding to parameter
+    $stmt->execute([':searchTerm' => $searchTerm]);
+    
     
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
@@ -39,25 +41,35 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
             throw new Exception("Recipient not found.");
         }
 
+        $amount2 = round($amount, 2);
+
+        if ($amount2 - $amount != 0) 
+        {
+            throw new Exception("Invalid amount format");
+        }
+
+        $amount = $amount2 ;
+
+
         // Get sender's balance
-        $stmt = $pdo->prepare("SELECT Balance FROM Balance WHERE ID = :senderId");
+        $stmt = $pdo->prepare("SELECT balance FROM balance WHERE id = :senderId");
         $stmt->execute([':senderId' => $senderId]);
         $sender = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$sender || $sender["balance"] < $amount) {
-            throw new Exception("Insufficient funds. " . $sender ); 
+            throw new Exception("Insufficient funds from your side"); 
         }
 
         // Deduct from sender
-        $stmt = $pdo->prepare("UPDATE Balance SET Balance = Balance - :amount WHERE ID = :senderId");
+        $stmt = $pdo->prepare("UPDATE balance SET balance = balance - :amount WHERE id = :senderId");
         $stmt->execute([':amount' => $amount, ':senderId' => $senderId]);
 
         // Add to receiver
-        $stmt = $pdo->prepare("UPDATE Balance SET Balance = Balance + :amount WHERE ID = :receiverId");
+        $stmt = $pdo->prepare("UPDATE balance SET balance = Balance + :amount WHERE id = :receiverId");
         $stmt->execute([':amount' => $amount, ':receiverId' => $receiverId]);
 
         // Insert transaction record
-        $stmt = $pdo->prepare("INSERT INTO Transactions (SenderID, ReceiverID, Amount, Comment) 
+        $stmt = $pdo->prepare("INSERT INTO transactions (SenderID, ReceiverID, Amount, Comment) 
                               VALUES (:senderId, :receiverId, :amount, :comment)");
         $stmt->execute([
             ':senderId' => $senderId,
@@ -72,7 +84,18 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
     catch (Exception $e) 
     {
         $pdo->rollBack();
-        $_SESSION["errors_transfer"] = $e->getMessage();
+        $knownErrors = [
+            "Recipient not found.",
+            "Invalid amount format",
+            "Insufficient funds from your side"
+        ];
+
+        if (in_array($e->getMessage(), $knownErrors)) {
+            $_SESSION["errors_transfer"] = $e->getMessage();
+        } else {
+            $_SESSION["errors_transfer"] = "Database error"; // Generic message for unexpected errors
+        }
+
         return false;
     }
 }

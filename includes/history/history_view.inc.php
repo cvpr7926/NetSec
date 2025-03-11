@@ -26,13 +26,14 @@ function display_transaction_history(array $transactions, int $userId): void
         $status = $isSender ? "<span style='color: red;'>Sent</span>" : "<span style='color: green;'>Received</span>";
 
         echo "<tr>
-                <td>{$transaction['sendername']}</td>
-                <td>{$transaction['receivername']}</td>
-                <td>{$transaction['amount']}</td>
-                <td>" . htmlspecialchars($transaction['comment']) . "</td>
-                <td>{$transaction['createdat']}</td>
-                <td>$status</td>
-              </tr>";
+            <td>" . htmlspecialchars($transaction['sendername'], ENT_QUOTES, 'UTF-8') . "</td>
+            <td>" . htmlspecialchars($transaction['receivername'], ENT_QUOTES, 'UTF-8') . "</td>
+            <td>" . htmlspecialchars((string) $transaction['amount'], ENT_QUOTES, 'UTF-8') . "</td>
+            <td>" . htmlspecialchars($transaction['comment'], ENT_QUOTES, 'UTF-8') . "</td>
+            <td>" . htmlspecialchars($transaction['createdat'], ENT_QUOTES, 'UTF-8') . "</td>
+            <td>$status</td>
+        </tr>";
+
     }
 
     echo "</table>";

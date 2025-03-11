@@ -6,6 +6,14 @@ require_once '../db.inc.php';
 require_once 'sendMoney_model.inc.php';
 require_once '../config_session.inc.php';
 
+// CSRF Protection
+if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) 
+{
+    $_SESSION["errors_transfer"] = "Invalid CSRF token.";
+    header("Location: ../../index.inc.php");
+    exit();
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transfer"])) 
 {
     if (!isset($_SESSION["user_id"])) 
@@ -15,13 +23,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transfer"]))
         exit();
     }    
 
-    $receiverUsername = trim($_POST["username"]);
+    $receiverUsername = htmlspecialchars(trim($_POST["username"]), ENT_QUOTES, 'UTF-8');
+    $comment = htmlspecialchars($_POST["comment"] ?? "", ENT_QUOTES, 'UTF-8');
     $amount = (float)$_POST["amount"];
-    $comment = $_POST["comment"] ?? "";
 
-    if (empty($receiverUsername) || $amount <= 0) 
-    {
-        $_SESSION["errors_transfer"] = "Please enter a valid username and amount.";
+    // Validate receiver username
+    if (!isset($_POST["username"]) || empty($receiverUsername)) {
+        $_SESSION["errors_transfer"] = "Please enter a valid username.";
+        header("Location: sendMoney.inc.php");
+        exit();
+    }
+
+    // Validate amount
+    if (!isset($_POST["amount"]) || !is_numeric($_POST["amount"]) || (float)$_POST["amount"] <= 0) {
+        $_SESSION["errors_transfer"] = "Please enter a valid amount.";
         header("Location: sendMoney.inc.php");
         exit();
     }

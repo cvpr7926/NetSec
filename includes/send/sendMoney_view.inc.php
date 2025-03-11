@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once '../config_session.inc.php' ; // Session configuration
 require_once '../db.inc.php'; // Database connection
 require_once 'sendMoney_model.inc.php'; // Contains search_users function
 
@@ -9,6 +10,8 @@ function display_money_transfer_form(): void
     ?>
 
     <form method="POST" action="sendMoney_contr.inc.php">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
         <div class="form-container">
             <div class="form-group">
                 <label for="username">Recipient Username:</label>
@@ -32,65 +35,91 @@ function display_money_transfer_form(): void
         <button type="submit" name="transfer">Send Money</button>
     </form>
 
-
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const usernameInput = document.getElementById("username");
-            const suggestionsBox = document.getElementById("suggestions");
+    document.addEventListener("DOMContentLoaded", function () {
+        const usernameInput = document.getElementById("username");
+        const suggestionsBox = document.getElementById("suggestions");
 
-            // Ensure suggestions box is hidden on page load
-            suggestionsBox.style.display = "none";
+        suggestionsBox.style.display = "none";
 
-            function fetchUsers(query) {
-                if (query.length < 2) {
-                    suggestionsBox.style.display = "none"; // Hide box if input is empty or too short
+        async function fetchUsers(query) {
+            
+            if (query.length < 2) {
+                suggestionsBox.style.display = "none";
+                return;
+            }
+
+            try {
+                const response = await fetch("searchUsers.php?query=" + encodeURIComponent(query));
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    suggestionsBox.style.display = "none";
                     return;
                 }
 
-                fetch("searchUsers.php?query=" + encodeURIComponent(query))
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.length === 0) {
-                            suggestionsBox.style.display = "none"; // Hide if no results
-                            return;
-                        }
-
-                        let suggestions = data.map(user => `<div class="suggestion-item">${user}</div>`).join("");
-                        suggestionsBox.innerHTML = suggestions;
-                        suggestionsBox.style.display = "block"; // Show only if results exist
+                suggestionsBox.innerHTML = ""; // Clear old suggestions
+                    data.forEach(user => {
+                        let div = document.createElement("div");
+                        div.classList.add("suggestion-item");
+                        div.setAttribute("tabindex", "0");
+                        div.textContent = user; // 
+                        suggestionsBox.appendChild(div);
                     });
+
+
+                suggestionsBox.style.display = "block";
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                suggestionsBox.style.display = "none"; // Hide suggestions on error
             }
+        }
 
-            // Fetch matching users when typing
-            usernameInput.addEventListener("input", function () {
-                fetchUsers(this.value);
-            });
 
-            // Handle click on a suggestion
-            suggestionsBox.addEventListener("click", function (event) {
-                if (event.target.classList.contains("suggestion-item")) {
-                    usernameInput.value = event.target.textContent;
-                    suggestionsBox.style.display = "none"; // Hide after selection
-                }
-            });
+        usernameInput.addEventListener("input", () => fetchUsers(usernameInput.value));
 
-            // Hide suggestions when clicking outside
-            document.addEventListener("click", function (event) {
-                if (!suggestionsBox.contains(event.target) && event.target !== usernameInput) {
-                    suggestionsBox.style.display = "none";
-                }
-            });
+        suggestionsBox.addEventListener("click", event => {
+            if (event.target.classList.contains("suggestion-item")) {
+                usernameInput.value = event.target.textContent;
+                suggestionsBox.style.display = "none";
+            }
         });
+
+        document.addEventListener("click", event => {
+            if (!suggestionsBox.contains(event.target) && event.target !== usernameInput) {
+                suggestionsBox.style.display = "none";
+            }
+        });
+
+        // Allow keyboard navigation for better UX
+        suggestionsBox.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                usernameInput.value = event.target.textContent;
+                suggestionsBox.style.display = "none";
+                usernameInput.focus();
+            }
+        });
+    });
     </script>
 
     <?php
-    if (isset($_SESSION["errors_transfer"])) {
-        echo '<p class="error-message">' . htmlspecialchars($_SESSION["errors_transfer"]) . '</p>';
-        unset($_SESSION["errors_transfer"]);
+    if (!empty($_SESSION["errors_transfer"])) {
+        echo '<p class="error-message">' . nl2br(htmlspecialchars($_SESSION["errors_transfer"], ENT_QUOTES, 'UTF-8')) . '</p>';
+        unset($_SESSION["errors_transfer"]); // Clear the error after displaying
     }
-    if (isset($_SESSION["transfer_success"])) {
-        echo '<p class="success-message">' . htmlspecialchars($_SESSION["transfer_success"]) . '</p>';
-        unset($_SESSION["transfer_success"]);
+
+    if (!empty($_SESSION["transfer_success"])) {
+        echo '<p class="success-message">' . nl2br(htmlspecialchars($_SESSION["transfer_success"], ENT_QUOTES, 'UTF-8')) . '</p>';
+        unset($_SESSION["transfer_success"]); // Clear success message after displaying
     }
+
 }
+
 ?>
+
+
