@@ -84,7 +84,18 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
     catch (Exception $e) 
     {
         $pdo->rollBack();
-        $_SESSION["errors_transfer"] = $e->getMessage();
+        $knownErrors = [
+            "Recipient not found.",
+            "Invalid amount format",
+            "Insufficient funds from your side"
+        ];
+
+        if (in_array($e->getMessage(), $knownErrors)) {
+            $_SESSION["errors_transfer"] = $e->getMessage();
+        } else {
+            $_SESSION["errors_transfer"] = "Database error"; // Generic message for unexpected errors
+        }
+
         return false;
     }
 }
