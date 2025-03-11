@@ -41,7 +41,6 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
             throw new Exception("Recipient not found.");
         }
 
-
         $amount2 = round($amount, 2);
 
         if ($amount2 - $amount != 0) 
@@ -49,26 +48,28 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
             throw new Exception("Invalid amount format");
         }
 
+        $amount = $amount2 ;
+
 
         // Get sender's balance
-        $stmt = $pdo->prepare("SELECT Balance FROM Balance WHERE ID = :senderId");
+        $stmt = $pdo->prepare("SELECT balance FROM balance WHERE id = :senderId");
         $stmt->execute([':senderId' => $senderId]);
         $sender = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$sender || $sender["Balance"] < $amount) {
+        if (!$sender || $sender["balance"] < $amount) {
             throw new Exception("Insufficient funds from your side"); 
         }
 
         // Deduct from sender
-        $stmt = $pdo->prepare("UPDATE Balance SET Balance = Balance - :amount WHERE ID = :senderId");
+        $stmt = $pdo->prepare("UPDATE balance SET balance = balance - :amount WHERE id = :senderId");
         $stmt->execute([':amount' => $amount, ':senderId' => $senderId]);
 
         // Add to receiver
-        $stmt = $pdo->prepare("UPDATE Balance SET Balance = Balance + :amount WHERE ID = :receiverId");
+        $stmt = $pdo->prepare("UPDATE balance SET balance = Balance + :amount WHERE id = :receiverId");
         $stmt->execute([':amount' => $amount, ':receiverId' => $receiverId]);
 
         // Insert transaction record
-        $stmt = $pdo->prepare("INSERT INTO Transactions (SenderID, ReceiverID, Amount, Comment) 
+        $stmt = $pdo->prepare("INSERT INTO transactions (SenderID, ReceiverID, Amount, Comment) 
                               VALUES (:senderId, :receiverId, :amount, :comment)");
         $stmt->execute([
             ':senderId' => $senderId,
