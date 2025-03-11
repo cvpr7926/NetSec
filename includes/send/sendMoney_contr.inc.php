@@ -6,6 +6,13 @@ require_once '../db.inc.php';
 require_once 'sendMoney_model.inc.php';
 require_once '../config_session.inc.php';
 
+// CSRF Protection
+if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+    $_SESSION["errors_transfer"] = "Invalid CSRF token.";
+    header("Location: ../../index.inc.php");
+    exit();
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transfer"])) 
 {
     if (!isset($_SESSION["user_id"])) 
