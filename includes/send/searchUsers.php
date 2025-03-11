@@ -27,6 +27,9 @@ if (!isset($_GET["query"]) || empty(trim($_GET["query"]))) {
 
 $searchTerm = trim($_GET["query"]);
 
+// Sanitize input to prevent XSS and potential PHP execution
+$searchTerm = htmlspecialchars(strip_tags($searchTerm), ENT_QUOTES, 'UTF-8');
+
 try {
     $results = search_users($pdo, $searchTerm);
     
