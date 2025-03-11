@@ -43,6 +43,7 @@ function display_money_transfer_form(): void
         suggestionsBox.style.display = "none";
 
         async function fetchUsers(query) {
+            
             if (query.length < 2) {
                 suggestionsBox.style.display = "none";
                 return;
@@ -101,12 +102,12 @@ function display_money_transfer_form(): void
 
     <?php
     if (!empty($_SESSION["errors_transfer"])) {
-        echo '<p class="error-message">' . htmlspecialchars($_SESSION["errors_transfer"], ENT_QUOTES, 'UTF-8') . '</p>';
+        echo '<p class="error-message">' . nl2br(htmlspecialchars($_SESSION["errors_transfer"], ENT_QUOTES, 'UTF-8')) . '</p>';
         unset($_SESSION["errors_transfer"]); // Clear the error after displaying
     }
 
     if (!empty($_SESSION["transfer_success"])) {
-        echo '<p class="success-message">' . htmlspecialchars($_SESSION["transfer_success"], ENT_QUOTES, 'UTF-8') . '</p>';
+        echo '<p class="success-message">' . nl2br(htmlspecialchars($_SESSION["transfer_success"], ENT_QUOTES, 'UTF-8')) . '</p>';
         unset($_SESSION["transfer_success"]); // Clear success message after displaying
     }
 

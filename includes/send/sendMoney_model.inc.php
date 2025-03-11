@@ -46,7 +46,7 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
         $stmt->execute([':senderId' => $senderId]);
         $sender = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$sender || $sender["balance"] < $amount) {
+        if (!$sender || $sender["Balance"] < $amount) {
             throw new Exception("Insufficient funds from your side"); 
         }
 

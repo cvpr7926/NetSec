@@ -27,6 +27,20 @@ if (!isset($_GET["query"]) || empty(trim($_GET["query"]))) {
 
 $searchTerm = trim($_GET["query"]);
 
+if (mb_strlen($searchTerm, 'UTF-8') > $maxLength) {
+    echo json_encode(["error" => "Input too long."]);
+    exit();
+}
+
+// Allow only alphanumeric characters and spaces (adjust regex if needed)
+$searchTerm = preg_replace('/[^a-zA-Z0-9\s]/', '', $searchTerm);
+
+// Ensure it's still not empty after sanitization
+if (empty($searchTerm)) {
+    echo json_encode(["No results found"]);
+    exit();
+}
+
 try {
     $results = search_users($pdo, $searchTerm);
     
