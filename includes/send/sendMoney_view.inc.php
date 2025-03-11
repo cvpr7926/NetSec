@@ -62,9 +62,16 @@ function display_money_transfer_form(): void
                     return;
                 }
 
-                suggestionsBox.innerHTML = data.map(user => 
-                    `<div class="suggestion-item" tabindex="0">${user}</div>`
-                ).join("");
+                suggestionsBox.innerHTML = ""; // Clear old suggestions
+                    data.forEach(user => {
+                        let div = document.createElement("div");
+                        div.classList.add("suggestion-item");
+                        div.setAttribute("tabindex", "0");
+                        div.textContent = user; // 
+                        suggestionsBox.appendChild(div);
+                    });
+
+
                 suggestionsBox.style.display = "block";
             } catch (error) {
                 console.error("Error fetching users:", error);

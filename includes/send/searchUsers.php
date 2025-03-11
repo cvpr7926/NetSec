@@ -33,7 +33,9 @@ try {
     if (empty($results)) {
         echo json_encode(["No results found"]); // Generic message
     } else {
-        echo json_encode($results);
+        $safe_results = array_map(fn($name) => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'), $results);
+        echo json_encode($safe_results);
+
     }
 } catch (Exception $e) {
     echo json_encode(["error" => "An error occurred."]); // Prevent exposing detailed errors
