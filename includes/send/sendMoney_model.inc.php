@@ -41,6 +41,15 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
             throw new Exception("Recipient not found.");
         }
 
+
+        $amount2 = round($amount, 2);
+
+        if ($amount2 - $amount != 0) 
+        {
+            throw new Exception("Invalid amount format");
+        }
+
+
         // Get sender's balance
         $stmt = $pdo->prepare("SELECT Balance FROM Balance WHERE ID = :senderId");
         $stmt->execute([':senderId' => $senderId]);
