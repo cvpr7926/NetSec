@@ -2,6 +2,30 @@
 
 session_start();
 
+
+// // Secure session settings
+// session_set_cookie_params([
+//     'lifetime' => 0, // Session expires when the browser closes
+//     'path' => '/',
+//     'domain' => '', // Change this if you have a specific domain
+//     'secure' => true, // Ensures cookies are sent over HTTPS
+//     'httponly' => true, // Prevents JavaScript access to session cookies
+//     'samesite' => 'Strict' // Protects against CSRF attacks
+// ]);
+
+
+// CSRF token generation and periodic regeneration
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+
+// Regenerate CSRF token periodically (every 30 minutes)
+if (!isset($_SESSION['csrf_token_time']) || time() - $_SESSION['csrf_token_time'] > 1800) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token_time'] = time();
+}
+
 if(isset($_SESSION["user_id"]))
 {
     if(!isset($_SESSION["last_regeneration"]))
@@ -36,6 +60,7 @@ function regenerate_session_id()
     session_regenerate_id(true);
     $_SESSION["last_regeneration"] = time();
 }
+
 
 function regenerate_session_id_loggedin()
 {

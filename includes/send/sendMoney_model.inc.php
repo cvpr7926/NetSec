@@ -20,8 +20,10 @@ function search_users(PDO $pdo, string $searchTerm): array
         return []; // Return empty array instead of top 5 users
     }
 
-    $stmt = $pdo->prepare("SELECT Username FROM Profile WHERE Username ILIKE :searchTerm LIMIT 5");
-    $stmt->execute([':searchTerm' => $searchTerm . '%']);
+    $stmt = $pdo->prepare("SELECT Username FROM Profile WHERE LOWER(Username) LIKE LOWER(:searchTerm) LIMIT 5");
+    $searchTerm = $searchTerm . '%'; // Append '%' before binding to parameter
+    $stmt->execute([':searchTerm' => $searchTerm]);
+    
     
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
