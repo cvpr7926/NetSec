@@ -10,14 +10,14 @@ function get_user_profile(object $pdo, int $user_id)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-function update_user_profile(object $pdo, int $user_id, ?string $name, ?string $bio)
+function update_user_profile(object $pdo, int $user_id, ?string $email, ?string $bio)
 {
     $query = "UPDATE Profile SET ";
     $params = [];
 
-    if (!empty($name)) {
-        $query .= "Username = :name, ";
-        $params[':name'] = $name;
+    if (!empty($email)) {
+        $query .= "Email = :email, ";
+        $params[':email'] = $email;
     }
     if (!empty($bio)) {
         $query .= "Biography = :bio, ";

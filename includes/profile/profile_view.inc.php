@@ -9,10 +9,9 @@ $user_id = $_SESSION["user_id"];
 $user = get_user_profile($pdo, $user_id);
 
 $username = $user["username"] ?? "";
-$name = $user["name"] ?? "";
 $email = $user["email"] ?? "";
-$bio = $user["bio"] ?? "";
-$profile_image = $user["profile_image"] ?? null;
+$bio = $user["biography"] ?? "";
+$profile_image = $user["profileimagepath"] ?? null;
 
 ?>
 
@@ -24,7 +23,7 @@ $profile_image = $user["profile_image"] ?? null;
             <div class="profile-pic default-pic">?</div>
         <?php endif; ?>
 
-        <h2><?= htmlspecialchars($name ?: $username); ?></h2>
+        <h2><?= htmlspecialchars($username); ?></h2>
         <p><?= htmlspecialchars($email); ?></p>
 
         <p><strong>Bio:</strong> <?= nl2br(htmlspecialchars($bio ?: "No bio available")); ?></p>

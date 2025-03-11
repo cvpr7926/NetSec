@@ -15,10 +15,10 @@ function is_valid_user($user) {
 $user_id = $_SESSION["user_id"];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = trim($_POST["name"] ?? "");
+    $email = trim($_POST["email"] ?? "");
     $bio = trim($_POST["bio"] ?? "");
 
-    if (update_user_profile($pdo, $user_id, $name, $bio)) {
+    if (update_user_profile($pdo, $user_id, $email, $bio)) {
         $_SESSION["profile_update_success"] = "Profile updated successfully!";
     } else {
         $_SESSION["profile_update_error"] = "Failed to update profile.";
@@ -29,13 +29,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $new_password = $_POST["new_password"];
         $confirm_password = $_POST["confirm_password"];
 
-        $query = "SELECT PasswordHash FROM Profile WHERE UserID = :user_id;";
+        $query = "SELECT PasswordHash FROM Profile WHERE ID = :user_id;";
         $stmt = $pdo->prepare($query);
         $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user || !password_verify($current_password, $user["password_hash"])) {
+        if (!$user || !password_verify($current_password, $user["passwordhash"])) {
             $_SESSION["profile_update_error"] = "Incorrect current password.";
             header("Location: profile.inc.php");
             exit();

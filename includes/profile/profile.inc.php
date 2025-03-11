@@ -18,10 +18,9 @@ if (!is_valid_user($user)) {
 }
 
 $username = htmlspecialchars($user["username"], ENT_QUOTES, 'UTF-8');
-$name = htmlspecialchars($user["name"], ENT_QUOTES, 'UTF-8');
 $email = htmlspecialchars($user["email"], ENT_QUOTES, 'UTF-8');
-$bio = htmlspecialchars($user["bio"], ENT_QUOTES, 'UTF-8');
-$profile_image = $user["profile_image"] ? htmlspecialchars($user["profile_image"]) : null;
+$bio = htmlspecialchars($user["biography"], ENT_QUOTES, 'UTF-8');
+$profile_image = $user["profileimagepath"] ? htmlspecialchars($user["profileimagepath"]) : null;
 ?>
 
 <!DOCTYPE html>
@@ -39,8 +38,8 @@ $profile_image = $user["profile_image"] ? htmlspecialchars($user["profile_image"
         <div class="form-container">
             <h3>Update Profile</h3>
             <form action="profile_contr.inc.php" method="post" enctype="multipart/form-data">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" value="<?= htmlspecialchars($name) ?>" placeholder="Enter your name">
+                <label for="Email">Email:</label>
+                <input type="text" id="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="Enter your name">
                 
                 <label for="bio">Bio:</label>
                 <textarea id="bio" name="bio" placeholder="Enter your biography"><?= htmlspecialchars($bio) ?></textarea>
