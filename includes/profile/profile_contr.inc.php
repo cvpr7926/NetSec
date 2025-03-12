@@ -57,22 +57,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_FILES["profile_image"]) && $_FILES["profile_image"]["error"] == 0) {
         $target_dir = "../../uploads/";
         $allowed_extensions = ["jpg", "jpeg", "png"];
-        $max_file_size = 2 * 1024 * 1024; 
-
-        $file_extension = strtolower(pathinfo($_FILES["profile_image"]["name"], PATHINFO_EXTENSION));
+        $allowed_mime_types = ["image/jpeg", "image/png"];
+        $max_file_size = 2 * 1024 * 1024; // 2MB
+    
+        $file_info = pathinfo($_FILES["profile_image"]["name"]);
+        $file_extension = strtolower($file_info["extension"]);
         $file_size = $_FILES["profile_image"]["size"];
+        $mime_type = mime_content_type($_FILES["profile_image"]["tmp_name"]);
+        
+        if (!isset($_SESSION['upload_attempts'])) {
+            $_SESSION['upload_attempts'] = 0;
+            $_SESSION['upload_time'] = time();
+        }
+        
+        if (time() - $_SESSION['upload_time'] < 60) { // Within 1 minute
+            if ($_SESSION['upload_attempts'] >= 3) {
+                $_SESSION["profile_update_error"] = "Too many upload attempts. Try again later.";
+                header("Location: profile.inc.php");
+                exit();
+            }
+        } else {
+            $_SESSION['upload_attempts'] = 0; // Reset after 1 minute
+            $_SESSION['upload_time'] = time();
+        }
+        
+        $_SESSION['upload_attempts']++;
 
-        if (!in_array($file_extension, $allowed_extensions) || $file_size > $max_file_size) {
+        // Validate extension, MIME type, and file size
+        if (!in_array($file_extension, $allowed_extensions) || 
+            !in_array($mime_type, $allowed_mime_types) || 
+            $file_size > $max_file_size) {
             $_SESSION["profile_update_error"] = "Invalid image file.";
             header("Location: profile.inc.php");
             exit();
         }
-
-        $new_filename = "profile_" . $user_id . "_" . time() . "." . $file_extension;
-        $target_file = $target_dir . $new_filename; // Store relative path
-
+    
+        // Generate a secure, unique filename (keeping original directory structure)
+        $new_filename = "profile_" . $user_id . "_" . bin2hex(random_bytes(16)) . "." . $file_extension;
+        $target_file = $target_dir . $new_filename; // Keeping original path intact
+    
+        // Move uploaded file securely
         if (move_uploaded_file($_FILES["profile_image"]["tmp_name"], $target_file)) {
-            update_profile_image($pdo, $user_id, $target_file); // Store relative path
+            if (filesize($target_file) > $max_file_size) {
+                unlink($target_file); // Delete oversized file
+                $_SESSION["profile_update_error"] = "Uploaded file is too large.";
+                header("Location: profile.inc.php");
+                exit();
+            }
+            $old_image = get_old_profile_image($pdo, $user_id); 
+            var_dump($old_image);
+
+            if ($old_image && file_exists($old_image)) {
+                unlink($old_image);
+            }
+            update_profile_image($pdo, $user_id, $target_file);
             $_SESSION["profile_update_success"] = "Profile image updated!";
         } else {
             $_SESSION["profile_update_error"] = "Failed to upload image.";

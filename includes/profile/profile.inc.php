@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 require_once '../config_session.inc.php';
 require_once '../db.inc.php';
 require_once 'profile_model.inc.php';
@@ -17,10 +18,25 @@ if (!is_valid_user($user)) {
     die("User not found.");
 }
 
-$username = htmlspecialchars($user["username"], ENT_QUOTES, 'UTF-8');
-$email = htmlspecialchars($user["email"], ENT_QUOTES, 'UTF-8');
-$bio = htmlspecialchars($user["biography"], ENT_QUOTES, 'UTF-8');
-$profile_image = $user["profileimagepath"] ? htmlspecialchars($user["profileimagepath"]) : null;
+// Sanitize user input
+$username = sanitize_input($user["username"] ?? "", 50);
+$email = sanitize_input($user["email"] ?? "", 320);
+$bio = sanitize_input($user["biography"] ?? "", 500);
+
+if (!is_valid_email($email)) {
+    die("Invalid email format.");
+}
+
+// Validate and process profile image path
+$profile_image = $user["profileimagepath"] ?? null;
+$upload_dir = "../../uploads/";
+
+if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('/\.\.\//', substr($profile_image, strlen($upload_dir)))) {
+    $profile_image = htmlspecialchars($profile_image, ENT_QUOTES, 'UTF-8');
+} else {
+    $profile_image = null;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -30,6 +46,26 @@ $profile_image = $user["profileimagepath"] ? htmlspecialchars($user["profileimag
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     <link rel="stylesheet" href="../../css/main.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function setupCharCounter(inputId, counterId, maxChars) {
+                const inputField = document.getElementById(inputId);
+                const charCounter = document.getElementById(counterId);
+
+                function updateCounter() {
+                    const remaining = maxChars - inputField.value.length;
+                    charCounter.textContent = `${remaining} characters left`;
+                    charCounter.classList.toggle("warning", remaining <= 10);
+                }
+
+                inputField.addEventListener("input", updateCounter);
+                updateCounter();
+            }
+
+            setupCharCounter("email", "emailCount", 320);
+            setupCharCounter("bio", "bioCount", 500);
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -38,15 +74,17 @@ $profile_image = $user["profileimagepath"] ? htmlspecialchars($user["profileimag
         <div class="form-container">
             <h3>Update Profile</h3>
             <form action="profile_contr.inc.php" method="post" enctype="multipart/form-data">
-                <label for="Email">Email:</label>
-                <input type="text" id="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="Enter your name">
-                
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="<?= htmlspecialchars($email); ?>" placeholder="Enter your email" maxlength="320" required>
+                <p id="emailCount" class="char-counter"></p>
+
                 <label for="bio">Bio:</label>
-                <textarea id="bio" name="bio" placeholder="Enter your biography"><?= htmlspecialchars($bio) ?></textarea>
-                
+                <textarea id="bio" name="bio" placeholder="Enter your biography" maxlength="500"><?= htmlspecialchars($bio); ?></textarea>
+                <p id="bioCount" class="char-counter"></p>
+
                 <label for="profile_image">Profile Image:</label>
                 <input type="file" id="profile_image" name="profile_image" accept="image/*">
-                
+
                 <button type="submit">Update Profile</button>
             </form>
 
@@ -54,13 +92,13 @@ $profile_image = $user["profileimagepath"] ? htmlspecialchars($user["profileimag
             <form action="profile_contr.inc.php" method="post">
                 <label for="current_password">Current Password:</label>
                 <input type="password" id="current_password" name="current_password" placeholder="Enter current password" required>
-                
+
                 <label for="new_password">New Password:</label>
                 <input type="password" id="new_password" name="new_password" placeholder="Enter new password" required>
-                
+
                 <label for="confirm_password">Confirm New Password:</label>
                 <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password" required>
-                
+
                 <button type="submit">Change Password</button>
             </form>
         </div>

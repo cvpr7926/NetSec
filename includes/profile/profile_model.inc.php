@@ -54,4 +54,30 @@ function update_profile_image(object $pdo, int $user_id, string $file_path)
     $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
     return $stmt->execute();
 }
+
+function get_old_profile_image(PDO $pdo, int $user_id): ?string
+{
+    $query = "SELECT ProfileImagePath FROM Profile WHERE ID = :user_id LIMIT 1;";
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result["profileimagepath"] : null;
+}
+
+// Securely process and validate user data
+function sanitize_input(string $input, int $max_length): string {
+    $input = strip_tags($input); // Remove all HTML tags
+    $input = preg_replace('/[\x00-\x1F\x7F]/u', '', $input); // Remove control characters
+    $input = trim($input); // Remove excess spaces
+    $input = htmlspecialchars($input, ENT_QUOTES, 'UTF-8'); // Encode special characters
+
+    return substr($input, 0, $max_length); // Enforce length limit
+}
+
+// Validate email
+function is_valid_email(string $email): bool {
+    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+}
 ?>

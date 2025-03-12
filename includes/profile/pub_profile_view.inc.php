@@ -13,13 +13,28 @@ if (!isset($_GET["user_id"]) || !is_numeric($_GET["user_id"])) {
 $user_id = (int) $_GET["user_id"];
 $user = get_user_profile($pdo, $user_id);
 
-if (!$user) {
+if (!is_valid_user($user)) {
     die("User not found.");
 }
-$username = htmlspecialchars($user["username"], ENT_QUOTES, 'UTF-8');
-$email = htmlspecialchars($user["email"], ENT_QUOTES, 'UTF-8');
-$bio = htmlspecialchars($user["biography"] ?? "No bio available", ENT_QUOTES, 'UTF-8');
-$profile_image = $user["profileimagepath"] ? htmlspecialchars($user["profileimagepath"]) : null;
+
+// Sanitize user input
+$username = sanitize_input($user["username"] ?? "", 50);
+$email = sanitize_input($user["email"] ?? "", 320);
+$bio = sanitize_input($user["biography"] ?? "", 500);
+
+if (!is_valid_email($email)) {
+    die("Invalid email format.");
+}
+
+// Validate and process profile image path
+$profile_image = $user["profileimagepath"] ?? null;
+$upload_dir = "../../uploads/";
+
+if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('/\.\.\//', substr($profile_image, strlen($upload_dir)))) {
+    $profile_image = htmlspecialchars($profile_image, ENT_QUOTES, 'UTF-8');
+} else {
+    $profile_image = null;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
