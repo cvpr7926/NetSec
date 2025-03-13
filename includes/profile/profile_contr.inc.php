@@ -15,8 +15,8 @@ function is_valid_user($user) {
 $user_id = $_SESSION["user_id"];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST["email"] ?? "");
-    $bio = trim($_POST["bio"] ?? "");
+    $email = sanitize_input($_POST["email"] ?? "", 320);
+    $bio = sanitize_input($_POST["bio"] ?? "", 500);
 
     if (update_user_profile($pdo, $user_id, $email, $bio)) {
         $_SESSION["profile_update_success"] = "Profile updated successfully!";
@@ -25,31 +25,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (!empty($_POST["current_password"]) && !empty($_POST["new_password"]) && !empty($_POST["confirm_password"])) {
-        $current_password = $_POST["current_password"];
-        $new_password = $_POST["new_password"];
-        $confirm_password = $_POST["confirm_password"];
-
-        $query = "SELECT PasswordHash FROM Profile WHERE ID = :user_id;";
-        $stmt = $pdo->prepare($query);
-        $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user || !password_verify($current_password, $user["passwordhash"])) {
-            $_SESSION["profile_update_error"] = "Incorrect current password.";
-            header("Location: profile.inc.php");
-            exit();
-        }
-
+        $current_password = sanitize_input($_POST["current_password"], 100);
+        $new_password = sanitize_input($_POST["new_password"], 100);
+        $confirm_password = sanitize_input($_POST["confirm_password"], 100);
+        
         if ($new_password !== $confirm_password) {
             $_SESSION["profile_update_error"] = "New passwords do not match.";
             header("Location: profile.inc.php");
             exit();
         }
-
+    
+        if (!isset($_SESSION["failed_attempts"])) {
+            $_SESSION["failed_attempts"] = 0;
+        }
+        
+        if ($_SESSION["failed_attempts"] >= 5) {
+            // Force logout after 5 failures
+            session_destroy();
+            header("Location: ../login/login.inc.php?error=too_many_attempts");
+            exit();
+        }
+        
+        $stored_hash = get_user_password_hash($pdo, $user_id);
+        $is_valid = password_verify($current_password, $stored_hash);
+        
+        if (!$stored_hash || !$is_valid) {
+            $_SESSION["failed_attempts"] += 1;
+            $_SESSION["profile_update_error"] = "Incorrect current password.";
+            header("Location: profile.inc.php");
+            exit();
+        }
+        
         if (update_user_password($pdo, $user_id, $new_password)) {
+            $_SESSION["failed_attempts"] = 0; // Reset only after success
+            session_regenerate_id(true); // Prevent session fixation
             $_SESSION["profile_update_success"] = "Password updated successfully!";
-        } else {
+        }
+        else {
             $_SESSION["profile_update_error"] = "Failed to update password.";
         }
     }
@@ -63,13 +75,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $file_info = pathinfo($_FILES["profile_image"]["name"]);
         $file_extension = strtolower($file_info["extension"]);
         $file_size = $_FILES["profile_image"]["size"];
-        $mime_type = mime_content_type($_FILES["profile_image"]["tmp_name"]);
-        
+    
+        // Secure MIME check
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $_FILES["profile_image"]["tmp_name"]);
+        finfo_close($finfo);
+    
+        // Prevent excessive upload attempts
         if (!isset($_SESSION['upload_attempts'])) {
             $_SESSION['upload_attempts'] = 0;
             $_SESSION['upload_time'] = time();
         }
-        
+    
         if (time() - $_SESSION['upload_time'] < 60) { // Within 1 minute
             if ($_SESSION['upload_attempts'] >= 3) {
                 $_SESSION["profile_update_error"] = "Too many upload attempts. Try again later.";
@@ -77,12 +94,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             }
         } else {
-            $_SESSION['upload_attempts'] = 0; // Reset after 1 minute
-            $_SESSION['upload_time'] = time();
+            $_SESSION['upload_attempts'] = 0; // Reset only if 1 minute has passed
         }
         
         $_SESSION['upload_attempts']++;
-
+    
         // Validate extension, MIME type, and file size
         if (!in_array($file_extension, $allowed_extensions) || 
             !in_array($mime_type, $allowed_mime_types) || 
@@ -92,30 +108,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
     
-        // Generate a secure, unique filename (keeping original directory structure)
+        // Generate a secure, unique filename
         $new_filename = "profile_" . $user_id . "_" . bin2hex(random_bytes(16)) . "." . $file_extension;
-        $target_file = $target_dir . $new_filename; // Keeping original path intact
+        $target_file = $target_dir . $new_filename;
     
         // Move uploaded file securely
         if (move_uploaded_file($_FILES["profile_image"]["tmp_name"], $target_file)) {
-            if (filesize($target_file) > $max_file_size) {
-                unlink($target_file); // Delete oversized file
-                $_SESSION["profile_update_error"] = "Uploaded file is too large.";
-                header("Location: profile.inc.php");
-                exit();
-            }
-            $old_image = get_old_profile_image($pdo, $user_id); 
-            var_dump($old_image);
-
+            $old_image = get_old_profile_image($pdo, $user_id);
+    
             if ($old_image && file_exists($old_image)) {
                 unlink($old_image);
             }
+    
             update_profile_image($pdo, $user_id, $target_file);
             $_SESSION["profile_update_success"] = "Profile image updated!";
         } else {
             $_SESSION["profile_update_error"] = "Failed to upload image.";
         }
     }
+    
 
     header("Location: profile.inc.php");
     exit();

@@ -47,25 +47,38 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
     <title>User Profile</title>
     <link rel="stylesheet" href="../../css/main.css">
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            function setupCharCounter(inputId, counterId, maxChars) {
-                const inputField = document.getElementById(inputId);
-                const charCounter = document.getElementById(counterId);
+    document.addEventListener("DOMContentLoaded", function () {
+        function setupCharCounter(inputId, counterId, maxChars) {
+            const inputField = document.getElementById(inputId);
+            const charCounter = document.getElementById(counterId);
 
-                function updateCounter() {
-                    const remaining = maxChars - inputField.value.length;
-                    charCounter.textContent = `${remaining} characters left`;
-                    charCounter.classList.toggle("warning", remaining <= 10);
-                }
-
-                inputField.addEventListener("input", updateCounter);
-                updateCounter();
+            function updateCounter() {
+                const remaining = maxChars - inputField.value.length;
+                charCounter.textContent = `${remaining} characters left`;
+                charCounter.classList.toggle("warning", remaining <= 10);
             }
 
-            setupCharCounter("email", "emailCount", 320);
-            setupCharCounter("bio", "bioCount", 500);
+            inputField.addEventListener("input", updateCounter);
+            updateCounter();
+        }
+
+        setupCharCounter("email", "emailCount", 320);
+        setupCharCounter("bio", "bioCount", 500);
+        setupCharCounter("new_password", "passwordCount", 100);
+
+        // File size validation
+        document.getElementById("profile_image").addEventListener("change", function () {
+            const file = this.files[0];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (file && file.size > maxSize) {
+                alert("File size exceeds 2MB. Please upload a smaller file.");
+                this.value = ""; // Clear file input
+            }
         });
-    </script>
+    });
+</script>
+
 </head>
 <body>
     <div class="container">
@@ -82,8 +95,8 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
                 <textarea id="bio" name="bio" placeholder="Enter your biography" maxlength="500"><?= htmlspecialchars($bio); ?></textarea>
                 <p id="bioCount" class="char-counter"></p>
 
-                <label for="profile_image">Profile Image:</label>
-                <input type="file" id="profile_image" name="profile_image" accept="image/*">
+                <label for="profile_image">Profile Image (Max: 2MB):</label>
+                <input type="file" id="profile_image" name="profile_image" accept="image/jpeg, image/png">
 
                 <button type="submit">Update Profile</button>
             </form>
@@ -94,7 +107,8 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
                 <input type="password" id="current_password" name="current_password" placeholder="Enter current password" required>
 
                 <label for="new_password">New Password:</label>
-                <input type="password" id="new_password" name="new_password" placeholder="Enter new password" required>
+                <input type="password" id="new_password" name="new_password" placeholder="Enter new password" required maxlength="100">
+                <p id="passwordCount" class="char-counter"></p>
 
                 <label for="confirm_password">Confirm New Password:</label>
                 <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password" required>
