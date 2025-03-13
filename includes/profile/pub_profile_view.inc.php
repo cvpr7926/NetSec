@@ -56,7 +56,7 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
 
                 <h2><?= $username; ?></h2>
                 <p><?= $email; ?></p>
-                <p><strong>Bio:</strong> <?= nl2br($bio); ?></p>
+                <p><strong>Bio:</strong> <?= nl2br($bio ?: "No bio available"); ?></p>
             </div>
         </div>
     </div>

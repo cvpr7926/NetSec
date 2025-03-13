@@ -13,6 +13,26 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
         
           $errors = [];
         //Error handling
+        if (strlen($username) > 50) { 
+          $errors["username_length"] = "Username should be less than 50 characters";
+       }
+
+       if (strlen($pwd) > 100) { 
+            $errors["password_length"] = "Password length should be less than 100 characters";
+        }
+
+        if (strlen($email) > 320) { 
+          $errors["Email_length"] = "Email length should be less than 320 characters";
+        }
+        if($errors)
+        {      
+               require_once '../config_session.inc.php'; //to start session
+               $_SESSION["errors_signup"] = $errors;
+               //echo "came here";
+
+               header("Location: ../../index.php"); //redirect to signup page
+               exit();
+        }
         if(is_input_empty($username,$pwd,$email))
         {
           $errors["empty_input"] = "Fill in all the fields";
@@ -39,7 +59,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
                
                $signup_data = [
                 "username"=>$username,
-                "emial"=> $email
+                "email"=> $email
                ];
                $_SESSION["signup_data"] = $signup_data;
 

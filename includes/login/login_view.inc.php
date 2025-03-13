@@ -13,7 +13,7 @@ function check_login_errors()
         echo "<br>";
         foreach($errors as $error)
         {
-            echo '<p class="form-error">'. $error. "</p>";
+            echo '<p class="form-error">'. htmlspecialchars($error). "</p>";
         }
         unset($_SESSION["errors_login"]);
     } else 

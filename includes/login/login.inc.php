@@ -13,6 +13,25 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
         
           $errors = [];
         //Error handling
+
+        if (strlen($username) > 50) { 
+            $errors["username_length"] = "Username should be less than 50 characters";
+         }
+
+         if (strlen($pwd) > 100) { 
+               $errors["password_length"] = "Password length should be less than 100 characters";
+         }
+         require_once '../config_session.inc.php';
+         if($errors)
+         {      
+               
+                  $_SESSION["errors_login"] = $errors;
+
+
+                  header("Location: ../../index.php"); //redirect to login/signup page
+                  exit();
+         }
+
         if(is_input_empty($username,$pwd))
         {
           $errors["empty_input"] = "Fill in all the fields";
@@ -22,7 +41,6 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
 
         error_log("Mayavi");
         error_log(print_r($result, true));
-
 
         if(is_username_invalid($result))
         { 
