@@ -81,6 +81,20 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
 
 </head>
 <body>
+    <?php if (isset($_SESSION["profile_update_error"])): ?>
+        <div class="error">
+            <?= htmlspecialchars($_SESSION["profile_update_error"], ENT_QUOTES, 'UTF-8'); ?>
+        </div>
+        <?php unset($_SESSION["profile_update_error"]); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["profile_update_success"])): ?>
+        <div class="success">
+            <?= htmlspecialchars($_SESSION["profile_update_success"], ENT_QUOTES, 'UTF-8'); ?>
+        </div>
+        <?php unset($_SESSION["profile_update_success"]); ?>
+    <?php endif; ?>
+
     <div class="container">
         <?php include 'profile_view.inc.php'; ?>
 
