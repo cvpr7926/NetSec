@@ -6,8 +6,10 @@ require_once '../db.inc.php';
 require_once 'profile_model.inc.php';
 require_once 'profile_contr.inc.php';
 require_once '../Navbar/navbar.php';
+require_once '../../logs/logger.inc.php';
 
 if (!isset($_SESSION["user_id"])) {
+    logUserActivity("'Guest'", "Unauthorized access attempt to profile page");
     header("Location: ../../index.php");
     exit();
 }
@@ -22,6 +24,8 @@ if (!is_valid_user($user)) {
 $username = sanitize_input($user["username"] ?? "", 50);
 $email = sanitize_input($user["email"] ?? "", 320);
 $bio = sanitize_input($user["biography"] ?? "", 500);
+
+logUserActivity($username, "Visited Profile Page");
 
 if (!is_valid_email($email)) {
     die("Invalid email format.");

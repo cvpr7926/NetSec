@@ -6,13 +6,14 @@ require_once 'history_view.inc.php'; //
 require_once 'history_contr.inc.php'; //
 $user_id = $_SESSION['user_id'] ?? null;
 require_once '../Navbar/navbar.php';
-
+require_once '../../logs/logger.inc.php';
 
 if(!isset($_SESSION["user_id"])) {
+    logUserActivity("'Guest'", "Unauthorized access attempt to transaction history");
     header("Location: ../../index.php");
     die();
 } 
-
+logUserActivity($_SESSION["username"], "Accessed transaction history");
 
 // ✅ Get transaction history from Controller
 $transactions = get_user_transactions();

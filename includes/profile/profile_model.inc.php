@@ -10,30 +10,47 @@ function get_user_profile(object $pdo, int $user_id)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-function update_user_profile(object $pdo, int $user_id, ?string $email, ?string $bio)
+function update_user_profile(object $pdo, int $user_id, ?string $email, ?string $bio): bool
 {
-    $query = "UPDATE Profile SET ";
-    $params = [];
+    try {
+        // Check if the email already exists for another user
+        if (!empty($email)) {
+            $stmt = $pdo->prepare("SELECT ID FROM Profile WHERE Email = :email AND ID != :user_id");
+            $stmt->execute(['email' => $email, 'user_id' => $user_id]);
 
-    if (!empty($email)) {
-        $query .= "Email = :email, ";
-        $params[':email'] = $email;
+            if ($stmt->fetch()) {
+                return false; // Email is already taken
+            }
+        }
+
+        // Construct the query dynamically
+        $query = "UPDATE Profile SET ";
+        $params = [];
+
+        if (!empty($email)) {
+            $query .= "Email = :email, ";
+            $params[':email'] = $email;
+        }
+        if (!empty($bio)) {
+            $query .= "Biography = :bio, ";
+            $params[':bio'] = $bio;
+        }
+
+        if (empty($params)) {
+            return false; // No valid updates
+        }
+
+        $query = rtrim($query, ", ") . " WHERE ID = :user_id";
+        $params[':user_id'] = $user_id;
+
+        $stmt = $pdo->prepare($query);
+        return $stmt->execute($params);
+    } catch (PDOException $e) {
+        error_log("Profile Update Error: " . $e->getMessage()); // Log error
+        return false;
     }
-    if (!empty($bio)) {
-        $query .= "Biography = :bio, ";
-        $params[':bio'] = $bio;
-    }
-
-    if (empty($params)) {
-        return false; 
-    }
-
-    $query = rtrim($query, ", ") . " WHERE ID = :user_id";
-    $params[':user_id'] = $user_id;
-
-    $stmt = $pdo->prepare($query);
-    return $stmt->execute($params);
 }
+
 
 function get_user_password_hash(object $pdo, int $user_id): ?string {
     $query = "SELECT PasswordHash FROM Profile WHERE ID = :user_id LIMIT 1;";
