@@ -1,5 +1,5 @@
 <?php
-require_once '../htmlpurifier-4.15.0/library/HTMLPurifier.auto.php';
+require_once 'htmlpurifier-4.15.0/library/HTMLPurifier.auto.php';
 
 function sanitize_input(string $input): string {
     $input = strip_tags($input); // Remove all HTML tags

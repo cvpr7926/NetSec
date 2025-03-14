@@ -14,8 +14,14 @@ function display_money_transfer_form(): void
 
         <div class="form-container">
             <div class="form-group">
-                <label for="username">Recipient Username:</label>
+                <label for="username">Recipient:</label>
                 <div class="username-container">
+                    Search By
+                    <select name="search_type" id="search_type">
+                        <option value="username">Username</option>
+                        <option value="userID">UserID</option>
+                    </select>
+                    <!-- Username input field -->
                     <input type="text" name="username" id="username" autocomplete="off" required>
                     <div id="suggestions" class="suggestions-box"></div>
                 </div>
@@ -39,18 +45,18 @@ function display_money_transfer_form(): void
     document.addEventListener("DOMContentLoaded", function () {
         const usernameInput = document.getElementById("username");
         const suggestionsBox = document.getElementById("suggestions");
+        const searchTypeDropdown = document.getElementById("search_type");
 
         suggestionsBox.style.display = "none";
 
-        async function fetchUsers(query) {
-            
+        async function fetchUsers(query, searchType) {
             if (query.length < 2) {
                 suggestionsBox.style.display = "none";
                 return;
             }
 
             try {
-                const response = await fetch("searchUsers.php?query=" + encodeURIComponent(query));
+                const response = await fetch(`searchUsers.php?query=${encodeURIComponent(query)}&type=${searchType}`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -64,14 +70,13 @@ function display_money_transfer_form(): void
                 }
 
                 suggestionsBox.innerHTML = ""; // Clear old suggestions
-                    data.forEach(user => {
-                        let div = document.createElement("div");
-                        div.classList.add("suggestion-item");
-                        div.setAttribute("tabindex", "0");
-                        div.textContent = user; // 
-                        suggestionsBox.appendChild(div);
-                    });
-
+                data.forEach(user => {
+                    let div = document.createElement("div");
+                    div.classList.add("suggestion-item");
+                    div.setAttribute("tabindex", "0");
+                    div.textContent = user; // Display username or userID
+                    suggestionsBox.appendChild(div);
+                });
 
                 suggestionsBox.style.display = "block";
             } catch (error) {
@@ -80,9 +85,19 @@ function display_money_transfer_form(): void
             }
         }
 
+        // Fetch users when input changes
+        usernameInput.addEventListener("input", () => {
+            const searchType = searchTypeDropdown.value;
+            fetchUsers(usernameInput.value, searchType);
+        });
 
-        usernameInput.addEventListener("input", () => fetchUsers(usernameInput.value));
+        // Fetch users when dropdown changes
+        searchTypeDropdown.addEventListener("change", () => {
+            const searchType = searchTypeDropdown.value;
+            fetchUsers(usernameInput.value, searchType);
+        });
 
+        // Handle suggestion selection
         suggestionsBox.addEventListener("click", event => {
             if (event.target.classList.contains("suggestion-item")) {
                 usernameInput.value = event.target.textContent;
@@ -90,6 +105,7 @@ function display_money_transfer_form(): void
             }
         });
 
+        // Hide suggestions when clicking outside
         document.addEventListener("click", event => {
             if (!suggestionsBox.contains(event.target) && event.target !== usernameInput) {
                 suggestionsBox.style.display = "none";
@@ -117,7 +133,6 @@ function display_money_transfer_form(): void
         echo '<p class="success-message">' . nl2br(htmlspecialchars($_SESSION["transfer_success"], ENT_QUOTES, 'UTF-8')) . '</p>';
         unset($_SESSION["transfer_success"]); // Clear success message after displaying
     }
-
 }
 
 ?>

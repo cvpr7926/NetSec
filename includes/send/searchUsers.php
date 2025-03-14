@@ -13,34 +13,47 @@ if (!isset($_SESSION['search_attempts']) || time() - $_SESSION['search_attempts'
 
 $_SESSION['search_attempts']['count']++;
 
-if ($_SESSION['search_attempts']['count'] > 10) {
-    header("HTTP/1.1 429 Too Many Requests");
-    echo json_encode(["error" => "Too many requests. Please try again later."]);
-    exit();
-}
+// if ($_SESSION['search_attempts']['count'] > 10) {
+//     header("HTTP/1.1 429 Too Many Requests");
+//     echo json_encode(["error" => "Too many requests. Please try again later."]);
+//     exit();
+// }
 
 
 if (!isset($_GET["query"]) || empty(trim($_GET["query"]))) {
     echo json_encode(["message" => "No results found"]);
     exit();
 }
+if (!isset($_GET["type"]) || empty(trim($_GET["type"])) || ($_GET["type"]!="username" && $_GET["type"]!="userID")) {
+    echo json_encode(["message" => "No results found"]);
+    exit();
+}
+//check if searchterm is integer
+if($_GET["type"]!="userID" && !is_int($_GET["query"]))
+{
+    echo json_encode(["message" => "No results found"]);
+    exit();
+}
 
 $searchTerm = trim($_GET["query"]);
 
-// Sanitize input to prevent XSS and potential PHP execution
-$searchTerm = htmlspecialchars(strip_tags($searchTerm), ENT_QUOTES, 'UTF-8');
+// Sanitize input to prevent XSS and potential PHP execution,change to use utils
+ $searchTerm = htmlspecialchars(strip_tags($searchTerm), ENT_QUOTES, 'UTF-8');
+
 
 try {
-    $results = search_users($pdo, $searchTerm);
-    
+    $results = search_users($pdo, $searchTerm,$_GET["type"]);
+    ;
     if (empty($results)) {
         echo json_encode(["message" => "No results found"]);
     } else {
-        $safe_results = array_map(fn($name) => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'), $results);
+        if($_GET["type"]!="userID") $safe_results = array_map(fn($name) => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'), $results);
+        else $safe_results  = $results;
         echo json_encode($safe_results);
 
     }
 } catch (Exception $e) {
+    #error_log($e->getMessage());
     echo json_encode(["error" => "An error occurred."]); // Prevent exposing detailed errors
 }
 ?>

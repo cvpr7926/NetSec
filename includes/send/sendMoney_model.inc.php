@@ -13,19 +13,27 @@ function get_user_id_by_username(PDO $pdo, string $Username): ?int
 }
 
 // Search users by username (case-insensitive search)
-function search_users(PDO $pdo, string $searchTerm): array
+function search_users(PDO $pdo, string $searchTerm, string $type): array
 {
 
     if (strlen($searchTerm) < 2) {
         return []; // Return empty array instead of top 5 users
     }
 
+    if($type=="username"){
     $stmt = $pdo->prepare("SELECT Username FROM Profile WHERE LOWER(Username) LIKE LOWER(:searchTerm) LIMIT 5");
     $searchTerm = $searchTerm . '%'; // Append '%' before binding to parameter
     $stmt->execute([':searchTerm' => $searchTerm]);
-    
-    
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+    else 
+    {
+        $stmt = $pdo->prepare("SELECT ID FROM Profile WHERE CAST(ID AS TEXT) LIKE :searchTerm LIMIT 5;");
+        $searchTerm = $searchTerm . '%'; // Append '%' for partial matching
+        $stmt->execute([':searchTerm' => $searchTerm]);
+    }
+
+    $result = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    return $result;
 }
 
 
