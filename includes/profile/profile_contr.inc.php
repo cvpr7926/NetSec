@@ -16,9 +16,16 @@ function is_valid_user($user) {
 $user_id = $_SESSION["user_id"];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        logUserActivity($_SESSION["username"] ?? "Guest", "Failed CSRF check for profile update.");
+        $_SESSION["profile_update_error"] = "Invalid CSRF token.";
+        header("Location: profile.inc.php");
+        exit();
+    }
+
     $email = sanitize_input($_POST["email"] ?? "", 320);
     $bio = sanitize_input($_POST["bio"] ?? "", 500);
-    echo "$email";
     if (!empty($email) && update_user_profile($pdo, $user_id, $email, $bio)) {
         $_SESSION["profile_update_success"] = "Profile updated successfully!";
         logUserActivity($_SESSION["username"], "Profile updated successfully!");

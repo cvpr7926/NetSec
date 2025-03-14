@@ -81,7 +81,7 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
             }
         });
     });
-</script>
+    </script>
 
 </head>
 <body>
@@ -105,6 +105,9 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
         <div class="form-container">
             <h3>Update Profile</h3>
             <form action="profile_contr.inc.php" method="post" enctype="multipart/form-data">
+                <!-- CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
+
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" value="<?= htmlspecialchars($email); ?>" placeholder="Enter your email" maxlength="320" required>
                 <p id="emailCount" class="char-counter"></p>
@@ -121,6 +124,9 @@ if ($profile_image && strpos($profile_image, $upload_dir) === 0 && !preg_match('
 
             <h3>Change Password</h3>
             <form action="profile_contr.inc.php" method="post">
+                <!-- CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
+
                 <label for="current_password">Current Password:</label>
                 <input type="password" id="current_password" name="current_password" placeholder="Enter current password" required>
 
