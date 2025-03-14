@@ -13,16 +13,16 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
         
           $errors = [];
         //Error handling
-        if (strlen($username) > 50) { 
-          $errors["username_length"] = "Username should be less than 50 characters";
+        if (strlen($username) > 30) { 
+          $errors["username_length"] = "Username should be less than 30 characters";
        }
 
-       if (strlen($pwd) > 100) { 
-            $errors["password_length"] = "Password length should be less than 100 characters";
+       if (strlen($pwd) > 20) { 
+            $errors["password_length"] = "Password length should be less than 20 characters";
         }
 
-        if (strlen($email) > 320) { 
-          $errors["Email_length"] = "Email length should be less than 320 characters";
+        if (strlen($email) > 30) { 
+          $errors["Email_length"] = "Email length should be less than 30 characters";
         }
         if($errors)
         {      
@@ -66,9 +66,13 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
                header("Location: ../../index.php"); //redirect to signup page
                exit();
         }
-           create_user($pdo,$username,$pwd,$email);
-           header("Location: ../../index.php?signup=success");
-           exit();
+          
+        // should sanitise usernname, before storing, email is already sannitise? doubt
+        require_once '../contr_utils.inc.php';
+        $username =  sanitize_input($username);
+        create_user($pdo,$username,$pwd,$email);
+        header("Location: ../../index.php?signup=success");
+        exit();
 
         } catch(PDOException $e)
         {

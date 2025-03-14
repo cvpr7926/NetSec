@@ -37,10 +37,11 @@ if($_SERVER["REQUEST_METHOD"]=="POST")
           $errors["empty_input"] = "Fill in all the fields";
         }
 
+        //sanitise username because the sanitized version was stored
+        require_once '../contr_utils.inc.php';
+        $username =  sanitize_input($username);
         $result = get_user($pdo,$username);
 
-        error_log("Mayavi");
-        error_log(print_r($result, true));
 
         if(is_username_invalid($result))
         { 
