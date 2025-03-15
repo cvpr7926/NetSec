@@ -45,10 +45,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["transfer"]))
         header("Location: sendMoney.inc.php");
         exit();
     }
-
-    $senderId = $_SESSION["user_id"];
+    //check identity type
+    if ($_POST['search_type'] != "username" && $_POST['search_type']!="userID") {
+        $_SESSION["errors_transfer"] = "Please send a valid identity type(username or userID).";
+        logUserActivity($senderUsername, "Entered invalid user identity type");
+        header("Location: sendMoney.inc.php");
+        exit();
+    }
     
-    if (transfer_money($pdo, $senderId, $receiverUsername, $amount, $comment)) {
+    $senderId = $_SESSION["user_id"];
+
+    if (transfer_money($pdo, $senderId, $receiverUsername, $amount,$_POST['search_type'],$comment)) {
         $_SESSION["transfer_success"] = "Transfer successful!";
         $susername = $_SESSION["username"];
         logUserActivity($senderUsername, "Transferred $amount from $susername to $receiverUsername");

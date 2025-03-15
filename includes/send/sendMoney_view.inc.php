@@ -138,8 +138,8 @@ function display_money_transfer_form(): void
  <?php
 function display_money_balance()
 {
-    require_once '../db.inc.php'; 
-    $balance = get_user_balance($pdo,$userID);
+    global $pdo;
+    $balance = get_user_balance($pdo,(string)$_SESSION["user_id"]);
     echo '<div class="balance-container">';
     echo '<p>Your Balance: <span class="balance-amount">$' . number_format((float) $balance, 2) . '</span></p>';
     echo '</div>';

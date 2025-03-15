@@ -32,20 +32,11 @@ if (!isset($_GET["query"]) || empty(trim($_GET["query"]))) {
 if (!isset($_GET["type"]) || empty(trim($_GET["type"])) || ($_GET["type"]!="username" && $_GET["type"]!="userID")) {
     echo json_encode(["message" => "No results found"]);
     exit();
-}
+} 
+
 //check if searchterm is integer
-if($_GET["type"]!="userID" && !is_int($_GET["query"]))
-{
-    echo json_encode(["message" => "No results found"]);
-    exit();
-}
-if (!isset($_GET["type"]) || empty(trim($_GET["type"])) || ($_GET["type"]!="username" && $_GET["type"]!="userID")) {
-    echo json_encode(["message" => "No results found"]);
-    exit();
-}
-//check if searchterm is integer
-if($_GET["type"]!="userID" && !is_int($_GET["query"]))
-{
+if($_GET["type"]=="userID" && !filter_var($_GET["query"], FILTER_VALIDATE_INT))
+{   
     echo json_encode(["message" => "No results found"]);
     exit();
 }
@@ -58,7 +49,7 @@ $searchTerm = trim($_GET["query"]);
 
 try {
     $results = search_users($pdo, $searchTerm,$_GET["type"]);
-    ;
+
     if (empty($results)) {
         logUserActivity($username, "Searched for '$searchTerm' but found no results");
         echo json_encode(["message" => "No results found"]);
@@ -70,7 +61,7 @@ try {
 
     }
 } catch (Exception $e) {
-    #error_log($e->getMessage());
+    //error_log($e->getMessage());
     echo json_encode(["error" => "An error occurred."]); // Prevent exposing detailed errors
 }
 ?>

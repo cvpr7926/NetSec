@@ -38,13 +38,15 @@ function search_users(PDO $pdo, string $searchTerm, string $type): array
 
 
 // Transfer money between users
-function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float $amount, ?string $comment): bool
+function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float $amount,string $type, ?string $comment): bool
 {
     try {
         $pdo->beginTransaction();
 
         // Get receiver ID
-        $receiverId = get_user_id_by_username($pdo, $receiverUsername);
+        if($type=="username") $receiverId = get_user_id_by_username($pdo, $receiverUsername);
+        else $receiverId = $receiverUsername;
+        
         if (!$receiverId) {
             throw new Exception("Recipient not found.");
         }
@@ -111,6 +113,7 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
 function get_user_balance(PDO $pdo,string $userID)
 {
     $stmt = $pdo->prepare("SELECT balance FROM balance WHERE id = :senderId");
-    $stmt->execute([':senderId' => $senderId]);
-    $sender = $stmt->fetch(PDO::FETCH_COLUMN)[0];
+    $stmt->execute([':senderId' => $userID]);
+    $balance = $stmt->fetch(PDO::FETCH_COLUMN);
+    return $balance;
 }
