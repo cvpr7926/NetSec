@@ -57,3 +57,8 @@ else
     header("Location: ../../index.php");
     die();
 }
+
+function user_balance(string $userID)
+{
+     return get_user_balance($pdo,$userID);
+}

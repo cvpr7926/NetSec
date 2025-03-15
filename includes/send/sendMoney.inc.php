@@ -25,6 +25,7 @@ require_once 'sendMoney_view.inc.php';
 <body>
 
     <!-- <h1>Transfer Money</h1> -->
+    <!-- <?php display_money_balance(); ?> -->
     <?php display_money_transfer_form(); ?>
 
 </body>

@@ -107,3 +107,10 @@ function transfer_money(PDO $pdo, int $senderId, string $receiverUsername, float
         return false;
     }
 }
+
+function get_user_balance(PDO $pdo,string $userID)
+{
+    $stmt = $pdo->prepare("SELECT balance FROM balance WHERE id = :senderId");
+    $stmt->execute([':senderId' => $senderId]);
+    $sender = $stmt->fetch(PDO::FETCH_COLUMN)[0];
+}
