@@ -5,8 +5,11 @@ require_once '../db.inc.php';
 require_once 'profile_model.inc.php';
 require_once 'profile_contr.inc.php';
 require_once '../Navbar/navbar.php';
+require_once '../../logs/logger.inc.php';
 
 if (!isset($_GET["user_id"]) || !is_numeric($_GET["user_id"])) {
+    $username = $_SESSION["username"] ?? "'Guest'";
+    logUserActivity($username, "Attempting to access profile page of user that doesn't exist");
     die("Invalid user ID.");
 }
 
@@ -21,6 +24,9 @@ if (!is_valid_user($user)) {
 $username = sanitize_input($user["username"] ?? "", 50);
 $email = sanitize_input($user["email"] ?? "", 320);
 $bio = sanitize_input($user["biography"] ?? "", 500);
+
+$rusername = $_SESSION['username'] ?? "'Guest'";
+logUserActivity($rusername, "Visited Profile Page of $username");
 
 if (!is_valid_email($email)) {
     die("Invalid email format.");
