@@ -50,3 +50,10 @@
 [2025-03-15 04:08:54] | Webpage: /includes/send/sendMoney.inc.php | Action: Accessed Money Transfer page | Username: raja | IP: 127.0.0.1
 [2025-03-15 04:08:56] | Webpage: /includes/history/history.inc.php | Action: Accessed transaction history | Username: raja | IP: 127.0.0.1
 [2025-03-15 04:08:59] | Webpage: /includes/send/sendMoney.inc.php | Action: Accessed Money Transfer page | Username: raja | IP: 127.0.0.1
+[2025-03-15 09:46:56] | Webpage: / | Action: Visited Home Page | Username: 'Guest' | IP: 127.0.0.1
+[2025-03-15 09:47:02] | Webpage: /includes/login/login.inc.php | Action: Successfully logged in | Username: 1 | IP: 127.0.0.1
+[2025-03-15 09:47:02] | Webpage: /includes/profile/profile.inc.php | Action: Visited Profile Page | Username: 1 | IP: 127.0.0.1
+[2025-03-15 09:47:05] | Webpage: /includes/send/sendMoney.inc.php | Action: Accessed Money Transfer page | Username: 1 | IP: 127.0.0.1
+[2025-03-15 09:47:27] | Webpage: /includes/send/sendMoney_contr.inc.php | Action: Transferred 20 from 1 to 2 | Username: 1 | IP: 127.0.0.1
+[2025-03-15 09:47:27] | Webpage: /includes/send/sendMoney.inc.php | Action: Accessed Money Transfer page | Username: 1 | IP: 127.0.0.1
+[2025-03-15 09:47:29] | Webpage: /includes/history/history.inc.php | Action: Accessed transaction history | Username: 1 | IP: 127.0.0.1
